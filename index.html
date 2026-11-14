@@ -239,7 +239,7 @@
                 <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
                     <div>
                         <h2 class="text-2xl md:text-3xl font-bold text-rose-300">🐛 Hata (Bug) Avcısı</h2>
-                        <p class="text-indigo-200">Roketin yıldıza ulaşmasını bozan <b>1 YANLIŞ ADIMI</b> bul ve üzerine tıkla!</p>
+                        <p class="text-indigo-200">Roketin yıldıza ulaşmasını bozan <b>1 YANLIŞ KOMUTU</b> bul ve üzerine tıkla!</p>
                     </div>
                     <div class="flex items-center gap-3">
                         <span id="bug-difficulty" class="bg-rose-500/20 border border-rose-400 text-rose-300 px-3 py-1.5 rounded-xl text-sm font-bold">Kolay</span>
@@ -257,7 +257,7 @@
 
                     <div>
                         <h3 class="text-lg font-bold text-rose-200 mb-3">Hatalı Kod Bloğuna Tıkla:</h3>
-                        <div id="bug-code-list" class="flex flex-col gap-2.5"></div>
+                        <div id="bug-code-list" class="flex flex-col gap-3"></div>
                         <p id="bug-feedback" class="mt-4 text-lg font-bold min-h-[28px]"></p>
                     </div>
                 </div>
@@ -299,12 +299,10 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
-                    <!-- Yılan Oyun Alanı -->
                     <div class="flex flex-col items-center">
                         <div class="relative bg-indigo-950 p-3 rounded-2xl border-4 border-cyan-400 shadow-2xl">
                             <canvas id="snake-canvas" width="320" height="320" class="rounded-xl bg-slate-900 block"></canvas>
                             
-                            <!-- Başlat / Çarpma Overlay -->
                             <div id="snake-overlay" class="absolute inset-0 bg-indigo-950/90 rounded-xl flex flex-col items-center justify-center p-4 text-center z-10">
                                 <div class="text-5xl mb-2">🐍🍎</div>
                                 <h3 id="snake-overlay-title" class="text-2xl font-bold text-cyan-300 mb-2">Seviye 1'e Hazır mısın?</h3>
@@ -316,7 +314,6 @@
                         </div>
                     </div>
 
-                    <!-- Dokunmatik / Ekrandan Yön Kontrolü -->
                     <div class="bg-indigo-900/70 p-6 rounded-3xl border-2 border-cyan-400/50 flex flex-col items-center">
                         <h3 class="text-lg font-bold text-cyan-200 mb-4">Yön Kontrolleri:</h3>
                         <div class="grid grid-cols-3 gap-3 w-56">
@@ -342,7 +339,6 @@
                 </div>
             </div>
 
-            <!-- Oyun 4 Zafer Ekranı -->
             <div id="snake-win-screen" class="hidden text-center py-10">
                 <div class="text-7xl mb-4 floating">🐍🏆</div>
                 <h2 class="text-3xl md:text-4xl font-bold text-cyan-300 mb-2">HARİKA REFLEKS SENCER!</h2>
@@ -697,44 +693,44 @@
         }
 
         // ==========================================
-        // OYUN 3: HATA (BUG) AVCISI
+        // OYUN 3: HATA (BUG) AVCISI (TEKİL KOMUT BLOKLARI)
         // ==========================================
         const bugLevels = [
             {
                 diff: 'Kolay',
                 rocket: [0, 0], star: [0, 3],
-                code: ['➡️ Sağa Git', '⬆️ Yukarı Git', '➡️ Sağa Git', '➡️ Sağa Git'],
+                code: ['➡️ 1 Adım Sağa Git', '⬆️ 1 Adım Yukarı Git', '➡️ 2 Adım Sağa Git'],
                 bugIndex: 1
             },
             {
                 diff: 'Kolay',
                 rocket: [0, 0], star: [2, 1],
-                code: ['⬇️ Aşağı Git', '⬇️ Aşağı Git', '⬅️ Sola Git'],
-                bugIndex: 2
+                code: ['⬇️ 2 Adım Aşağı Git', '⬅️ 1 Adım Sola Git', '➡️ 1 Adım Sağa Git'],
+                bugIndex: 1
             },
             {
                 diff: 'Orta',
                 rocket: [4, 0], star: [1, 2],
-                code: ['⬆️ Yukarı Git', '⬆️ Yukarı Git', '⬆️ Yukarı Git', '⬇️ Aşağı Git', '➡️ Sağa Git', '➡️ Sağa Git'],
-                bugIndex: 3
+                code: ['⬆️ 3 Adım Yukarı Git', '⬇️ 1 Adım Aşağı Git', '➡️ 2 Adım Sağa Git'],
+                bugIndex: 1
             },
             {
                 diff: 'Orta',
                 rocket: [0, 4], star: [3, 1],
-                code: ['⬅️ Sola Git', '⬅️ Sola Git', '⬅️ Sola Git', '⬇️ Aşağı Git', '➡️ Sağa Git', '⬇️ Aşağı Git', '⬇️ Aşağı Git'],
-                bugIndex: 4
+                code: ['⬅️ 3 Adım Sola Git', '⬇️ 1 Adım Aşağı Git', '➡️ 1 Adım Sağa Git', '⬇️ 2 Adım Aşağı Git'],
+                bugIndex: 2
             },
             {
                 diff: 'Zor',
                 rocket: [4, 4], star: [1, 1],
-                code: ['⬆️ Yukarı Git', '⬅️ Sola Git', '⬆️ Yukarı Git', '⬅️ Sola Git', '⬇️ Aşağı Git', '⬆️ Yukarı Git', '⬅️ Sola Git'],
-                bugIndex: 4
+                code: ['⬆️ 2 Adım Yukarı Git', '⬅️ 2 Adım Sola Git', '⬇️ 1 Adım Aşağı Git', '⬆️ 1 Adım Yukarı Git', '⬅️ 1 Adım Sola Git'],
+                bugIndex: 2
             },
             {
                 diff: 'Şampiyon',
-                rocket: [2, 0], star: [0, 4],
-                code: ['➡️ Sağa Git', '⬆️ Yukarı Git', '➡️ Sağa Git', '⬆️ Yukarı Git', '➡️ Sağa Git', '⬅️ Sola Git', '➡️ Sağa Git'],
-                bugIndex: 5
+                rocket: [3, 0], star: [0, 4],
+                code: ['➡️ 2 Adım Sağa Git', '⬆️ 3 Adım Yukarı Git', '⬅️ 1 Adım Sola Git', '➡️ 2 Adım Sağa Git'],
+                bugIndex: 2
             }
         ];
         let currentBugLevel = 0;
@@ -761,7 +757,7 @@
 
             const list = document.getElementById('bug-code-list');
             list.innerHTML = lvl.code.map((step, idx) => `
-                <button onclick="checkBug(${idx})" class="btn-bounce w-full text-left bg-indigo-950 hover:bg-rose-900/60 border-2 border-indigo-500 hover:border-rose-400 px-4 py-2.5 rounded-xl font-bold text-base flex items-center gap-3 shadow">
+                <button onclick="checkBug(${idx})" class="btn-bounce w-full text-left bg-indigo-950 hover:bg-rose-900/60 border-2 border-indigo-500 hover:border-rose-400 px-4 py-3 rounded-xl font-bold text-base flex items-center gap-3 shadow cursor-pointer">
                     <span class="bg-rose-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0">${idx + 1}</span>
                     <span>${step}</span>
                 </button>
@@ -800,7 +796,7 @@
         }
 
         // ==========================================
-        // OYUN 4: KOD YILANI (DÜZELTİLMİŞ KONTROLLER)
+        // OYUN 4: KOD YILANI
         // ==========================================
         const snakeLevels = [
             { target: 5, speed: 230 },
@@ -818,7 +814,7 @@
 
         const canvas = document.getElementById('snake-canvas');
         const ctx = canvas.getContext('2d');
-        const tileCount = 16; // 320 / 20 = 16x16 kare
+        const tileCount = 16;
         const tileSize = 20;
 
         function prepareSnakeOverlay() {
@@ -853,7 +849,7 @@
 
         function startSnakeLevel() {
             playClick();
-            stopSnakeLoop(); // Önce varsa eski döngüyü temizle
+            stopSnakeLoop();
 
             const lvl = snakeLevels[currentSnakeLevel];
             snake = [
@@ -871,7 +867,7 @@
             spawnApple();
             drawSnake();
             
-            snakeRunning = true; // Şimdi aktif et!
+            snakeRunning = true;
             snakeTimer = setInterval(updateSnake, lvl.speed);
         }
 
@@ -901,13 +897,11 @@
 
         function setSnakeDir(dx, dy) {
             if (!snakeRunning) return;
-            // Ters yöne anında dönmeyi engelle
             if (dx !== 0 && snakeDir.x === -dx) return;
             if (dy !== 0 && snakeDir.y === -dy) return;
             nextSnakeDir = { x: dx, y: dy };
         }
 
-        // Klavye ok tuşları ve WASD desteği
         window.addEventListener('keydown', (e) => {
             if (document.getElementById('game-snake').classList.contains('hidden')) return;
             const key = e.key;
@@ -925,7 +919,6 @@
             snakeDir = { x: nextSnakeDir.x, y: nextSnakeDir.y };
             const head = { x: snake[0].x + snakeDir.x, y: snake[0].y + snakeDir.y };
 
-            // Duvar veya kendine çarpma kontrolü
             const hitWall = head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount;
             const hitSelf = snake.some(seg => seg.x === head.x && seg.y === head.y);
 
@@ -940,7 +933,6 @@
 
             snake.unshift(head);
 
-            // Elma yedi mi?
             if (head.x === apple.x && head.y === apple.y) {
                 playEat();
                 snakeApplesEaten++;
@@ -974,18 +966,15 @@
         function drawSnake() {
             drawInitialSnakeBoard();
 
-            // Elmayı çiz
             ctx.font = '18px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('🍎', apple.x * tileSize + tileSize / 2, apple.y * tileSize + tileSize / 2 + 1);
 
-            // Yılanı çiz
             snake.forEach((seg, index) => {
                 ctx.fillStyle = index === 0 ? '#22d3ee' : '#06b6d4';
                 ctx.fillRect(seg.x * tileSize + 2, seg.y * tileSize + 2, tileSize - 4, tileSize - 4);
 
-                // Yılanın gözleri
                 if (index === 0) {
                     ctx.fillStyle = '#0f172a';
                     ctx.beginPath();
