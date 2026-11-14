@@ -1,1 +1,508 @@
 
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sencer Kokular - Kodlama Macerası</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            min-height: 100vh;
+            user-select: none;
+        }
+        .game-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-bounce:active {
+            transform: scale(0.92);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="text-white p-4 md:p-8">
+
+    <!-- Üst Başlık -->
+    <header class="max-w-5xl mx-auto text-center mb-8">
+        <div class="inline-block bg-yellow-400 text-indigo-950 font-bold px-4 py-1 rounded-full text-sm mb-3 shadow-lg">
+            🚀 GENÇ YAZILIMCI LABORATUVARI
+        </div>
+        <h1 class="text-4xl md:text-6xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-400 drop-shadow-md">
+            Sencer Kokular'ın Kodlama Dünyası
+        </h1>
+        <p class="text-indigo-200 text-lg md:text-xl mt-2">
+            Blokları birleştir, algoritmaları çöz ve yıldızları topla! ⭐
+        </p>
+
+        <!-- Skor ve Ses Kontrolü -->
+        <div class="flex justify-center items-center gap-4 mt-4">
+            <div class="bg-indigo-900/80 border-2 border-yellow-400 px-6 py-2 rounded-2xl flex items-center gap-2 shadow-lg">
+                <span class="text-2xl">⭐</span>
+                <span class="text-xl font-bold text-yellow-300">Yıldızlarım: <span id="total-stars">0</span></span>
+            </div>
+            <button onclick="toggleSound()" id="sound-btn" class="bg-indigo-800 hover:bg-indigo-700 border-2 border-indigo-400 px-4 py-2 rounded-2xl text-xl shadow-lg btn-bounce">
+                🔊
+            </button>
+        </div>
+    </header>
+
+    <!-- Oyun Seçim Menüsü -->
+    <nav class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <button onclick="switchGame('robot')" id="tab-robot" class="game-card bg-emerald-500 hover:bg-emerald-400 text-indigo-950 font-bold p-4 rounded-3xl shadow-xl border-b-8 border-emerald-700 flex flex-col items-center">
+            <span class="text-4xl mb-1">🤖</span>
+            <span class="text-xl">1. Robotu Yıldıza Ulaştır</span>
+            <span class="text-xs bg-emerald-950/20 px-3 py-1 rounded-full mt-1">Algoritma & Yönler</span>
+        </button>
+
+        <button onclick="switchGame('pattern')" id="tab-pattern" class="game-card bg-amber-400 hover:bg-amber-300 text-indigo-950 font-bold p-4 rounded-3xl shadow-xl border-b-8 border-amber-600 flex flex-col items-center opacity-80">
+            <span class="text-4xl mb-1">🛸</span>
+            <span class="text-xl">2. Uzay Şifresi</span>
+            <span class="text-xs bg-amber-950/20 px-3 py-1 rounded-full mt-1">Örüntü & Döngü</span>
+        </button>
+
+        <button onclick="switchGame('bug')" id="tab-bug" class="game-card bg-rose-500 hover:bg-rose-400 text-white font-bold p-4 rounded-3xl shadow-xl border-b-8 border-rose-700 flex flex-col items-center opacity-80">
+            <span class="text-4xl mb-1">🐛</span>
+            <span class="text-xl">3. Hata (Bug) Avcısı</span>
+            <span class="text-xs bg-rose-950/30 px-3 py-1 rounded-full mt-1">Hata Ayıklama</span>
+        </button>
+    </nav>
+
+    <!-- ANA OYUN ALANI -->
+    <main class="max-w-5xl mx-auto bg-indigo-950/80 backdrop-blur-md border-4 border-indigo-500/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+
+        <!-- OYUN 1: ROBOTU YILDIZA ULAŞTIR -->
+        <section id="game-robot" class="block">
+            <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-emerald-300">🤖 Robotu Yıldıza Ulaştır</h2>
+                    <p class="text-indigo-200">Komut butonlarına basarak kodunu oluştur ve <b>ÇALIŞTIR</b>'a bas!</p>
+                </div>
+                <div class="bg-emerald-900/60 border border-emerald-400 px-4 py-2 rounded-xl font-bold text-emerald-200">
+                    Seviye: <span id="robot-level-num">1</span> / 5
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <!-- Oyun Haritası (5x5 Grid) -->
+                <div class="flex flex-col items-center">
+                    <div id="robot-grid" class="grid grid-cols-5 gap-2 bg-indigo-900 p-4 rounded-2xl border-4 border-indigo-400 shadow-inner">
+                        <!-- JS ile doldurulacak -->
+                    </div>
+                    <p id="robot-status" class="mt-4 text-lg font-bold text-center text-yellow-300 min-h-[28px]"></p>
+                </div>
+
+                <!-- Kodlama Paneli -->
+                <div class="bg-indigo-900/70 p-5 rounded-2xl border-2 border-indigo-400/50">
+                    <h3 class="text-lg font-bold text-indigo-200 mb-3">1. Komut Blokları Seç:</h3>
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <button onclick="addCommand('UP')" class="btn-bounce bg-sky-500 hover:bg-sky-400 border-b-4 border-sky-700 text-white font-bold py-3 px-2 rounded-xl flex flex-col items-center shadow">
+                            <span class="text-2xl">⬆️</span>
+                            <span class="text-sm mt-1">Yukarı</span>
+                        </button>
+                        <button onclick="addCommand('DOWN')" class="btn-bounce bg-sky-500 hover:bg-sky-400 border-b-4 border-sky-700 text-white font-bold py-3 px-2 rounded-xl flex flex-col items-center shadow">
+                            <span class="text-2xl">⬇️</span>
+                            <span class="text-sm mt-1">Aşağı</span>
+                        </button>
+                        <button onclick="addCommand('LEFT')" class="btn-bounce bg-sky-500 hover:bg-sky-400 border-b-4 border-sky-700 text-white font-bold py-3 px-2 rounded-xl flex flex-col items-center shadow">
+                            <span class="text-2xl">⬅️</span>
+                            <span class="text-sm mt-1">Sola</span>
+                        </button>
+                        <button onclick="addCommand('RIGHT')" class="btn-bounce bg-sky-500 hover:bg-sky-400 border-b-4 border-sky-700 text-white font-bold py-3 px-2 rounded-xl flex flex-col items-center shadow">
+                            <span class="text-2xl">➡️</span>
+                            <span class="text-sm mt-1">Sağa</span>
+                        </button>
+                        <button onclick="clearCommands()" class="btn-bounce bg-rose-500 hover:bg-rose-400 border-b-4 border-rose-700 text-white font-bold py-3 px-2 rounded-xl flex flex-col items-center shadow col-span-2">
+                            <span class="text-2xl">🗑️</span>
+                            <span class="text-sm mt-1">Kodları Temizle</span>
+                        </button>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-indigo-200 mb-2">2. Sencer'in Kod Sırası:</h3>
+                    <div id="command-queue" class="min-h-[90px] bg-indigo-950/90 border-2 border-dashed border-indigo-400 rounded-xl p-3 flex flex-wrap gap-2 items-center mb-6">
+                        <span class="text-indigo-400 text-sm">Henüz blok eklenmedi...</span>
+                    </div>
+
+                    <button onclick="runRobotCode()" id="run-btn" class="w-full btn-bounce bg-emerald-500 hover:bg-emerald-400 border-b-6 border-emerald-700 text-indigo-950 font-bold text-2xl py-4 rounded-2xl shadow-xl flex justify-center items-center gap-2">
+                        <span>▶️</span> KODU ÇALIŞTIR
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- OYUN 2: UZAY ŞİFRESİ (ÖRÜNTÜ) -->
+        <section id="game-pattern" class="hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-amber-300">🛸 Uzay Şifresini Çöz</h2>
+                <p class="text-indigo-200">Sıradaki doğru sembolü seçerek uzay gemisinin şifresini tamamla!</p>
+            </div>
+
+            <div class="max-w-2xl mx-auto bg-indigo-900/80 p-6 md:p-8 rounded-3xl border-2 border-amber-400/50 text-center">
+                <div id="pattern-display" class="flex flex-wrap justify-center items-center gap-3 md:gap-4 text-4xl md:text-5xl bg-indigo-950 p-6 rounded-2xl mb-8 shadow-inner">
+                    <!-- JS ile doldurulacak -->
+                </div>
+
+                <p class="text-lg font-bold text-amber-200 mb-4">Soru işareti (?) yerine hangisi gelmeli?</p>
+                <div id="pattern-options" class="grid grid-cols-3 gap-4 max-w-md mx-auto">
+                    <!-- JS ile doldurulacak -->
+                </div>
+                <p id="pattern-feedback" class="mt-6 text-xl font-bold min-h-[32px]"></p>
+            </div>
+        </section>
+
+        <!-- OYUN 3: HATA (BUG) AVCISI -->
+        <section id="game-bug" class="hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-rose-300">🐛 Hata (Bug) Avcısı</h2>
+                <p class="text-indigo-200">Roketin yıldıza ulaşması için yazılan kodda <b>1 TANE YANLIŞ ADIM</b> var! Hatalı bloğu bul ve üzerine tıkla!</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-indigo-900/80 p-6 rounded-3xl border-2 border-rose-400/50">
+                <div class="flex flex-col items-center">
+                    <div id="bug-grid" class="grid grid-cols-4 gap-2 bg-indigo-950 p-4 rounded-2xl border-2 border-rose-400">
+                        <!-- JS ile doldurulacak -->
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-rose-200 mb-3">Hatalı Kod Bloğuna Tıkla:</h3>
+                    <div id="bug-code-list" class="flex flex-col gap-3">
+                        <!-- JS ile doldurulacak -->
+                    </div>
+                    <p id="bug-feedback" class="mt-4 text-lg font-bold min-h-[28px]"></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="max-w-5xl mx-auto text-center mt-8 text-indigo-300 text-sm">
+        <p>🌟 Sencer Kokular için özel olarak tasarlanmıştır • Geleceğin Yazılımcısı 🌟</p>
+    </footer>
+
+    <script>
+        // --- SES EFEKTLERİ (Web Audio API) ---
+        let soundEnabled = true;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTone(freq, type, duration) {
+            if (!soundEnabled) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playClick() { playTone(520, 'sine', 0.1); }
+        function playStep() { playTone(350, 'triangle', 0.12); }
+        function playError() { playTone(160, 'sawtooth', 0.35); }
+        function playWin() {
+            playTone(523.25, 'sine', 0.15);
+            setTimeout(() => playTone(659.25, 'sine', 0.15), 120);
+            setTimeout(() => playTone(783.99, 'sine', 0.3), 240);
+            confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-btn').textContent = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // --- YILDIZ PUAN SİSTEMİ ---
+        let stars = parseInt(localStorage.getItem('sencer_stars') || '0');
+        document.getElementById('total-stars').textContent = stars;
+
+        function addStars(amount) {
+            stars += amount;
+            localStorage.setItem('sencer_stars', stars);
+            document.getElementById('total-stars').textContent = stars;
+        }
+
+        // --- SEKME GEÇİŞLERİ ---
+        function switchGame(gameName) {
+            playClick();
+            ['robot', 'pattern', 'bug'].forEach(g => {
+                document.getElementById('game-' + g).classList.add('hidden');
+                document.getElementById('tab-' + g).classList.add('opacity-80');
+            });
+            document.getElementById('game-' + gameName).classList.remove('hidden');
+            document.getElementById('tab-' + gameName).classList.remove('opacity-80');
+        }
+
+        // ==========================================
+        // OYUN 1: ROBOTU YILDIZA ULAŞTIR
+        // ==========================================
+        const robotLevels = [
+            { start: [0, 0], star: [0, 3], rocks: [[1, 1], [2, 2]] },
+            { start: [4, 0], star: [1, 3], rocks: [[3, 0], [3, 1], [2, 3]] },
+            { start: [0, 4], star: [4, 1], rocks: [[1, 4], [1, 3], [3, 1], [3, 2]] },
+            { start: [2, 0], star: [2, 4], rocks: [[2, 1], [2, 2], [2, 3], [0, 2]] },
+            { start: [4, 4], star: [0, 0], rocks: [[3, 4], [3, 3], [1, 0], [1, 1], [2, 2]] }
+        ];
+
+        let currentRobotLevel = 0;
+        let robotPos = [0, 0];
+        let commands = [];
+        let isRunning = false;
+
+        function initRobotLevel() {
+            const lvl = robotLevels[currentRobotLevel];
+            robotPos = [...lvl.start];
+            commands = [];
+            isRunning = false;
+            document.getElementById('robot-level-num').textContent = currentRobotLevel + 1;
+            document.getElementById('robot-status').textContent = '';
+            renderCommandQueue();
+            renderRobotGrid();
+        }
+
+        function renderRobotGrid() {
+            const grid = document.getElementById('robot-grid');
+            grid.innerHTML = '';
+            const lvl = robotLevels[currentRobotLevel];
+
+            for (let r = 0; r < 5; r++) {
+                for (let c = 0; c < 5; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'w-12 h-12 md:w-16 md:h-16 bg-indigo-950 rounded-xl flex items-center justify-center text-3xl md:text-4xl border border-indigo-700/60';
+                    
+                    const isRock = lvl.rocks.some(rock => rock[0] === r && rock[1] === c);
+                    const isStar = lvl.star[0] === r && lvl.star[1] === c;
+                    const isRobot = robotPos[0] === r && robotPos[1] === c;
+
+                    if (isRobot) {
+                        cell.textContent = '🤖';
+                        cell.classList.add('bg-emerald-900/60', 'border-emerald-400');
+                    } else if (isStar) {
+                        cell.textContent = '⭐';
+                        cell.classList.add('floating');
+                    } else if (isRock) {
+                        cell.textContent = '☄️';
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        const cmdIcons = { 'UP': '⬆️ Yukarı', 'DOWN': '⬇️ Aşağı', 'LEFT': '⬅️ Sola', 'RIGHT': '➡️ Sağa' };
+
+        function addCommand(cmd) {
+            if (isRunning || commands.length >= 14) return;
+            playClick();
+            commands.push(cmd);
+            renderCommandQueue();
+        }
+
+        function clearCommands() {
+            if (isRunning) return;
+            playClick();
+            commands = [];
+            robotPos = [...robotLevels[currentRobotLevel].start];
+            document.getElementById('robot-status').textContent = '';
+            renderCommandQueue();
+            renderRobotGrid();
+        }
+
+        function renderCommandQueue() {
+            const q = document.getElementById('command-queue');
+            if (commands.length === 0) {
+                q.innerHTML = '<span class="text-indigo-400 text-sm">Henüz blok eklenmedi...</span>';
+                return;
+            }
+            q.innerHTML = commands.map((c, idx) => `
+                <span class="bg-sky-600 text-white font-bold px-3 py-1.5 rounded-lg text-sm shadow flex items-center gap-1">
+                    <span class="text-xs text-sky-200">${idx + 1}.</span> ${cmdIcons[c]}
+                </span>
+            `).join('');
+        }
+
+        async function runRobotCode() {
+            if (isRunning || commands.length === 0) return;
+            isRunning = true;
+            const lvl = robotLevels[currentRobotLevel];
+            robotPos = [...lvl.start];
+            renderRobotGrid();
+            document.getElementById('robot-status').textContent = 'Robot hareket ediyor...';
+
+            for (let i = 0; i < commands.length; i++) {
+                await new Promise(res => setTimeout(res, 450));
+                const cmd = commands[i];
+                if (cmd === 'UP') robotPos[0]--;
+                if (cmd === 'DOWN') robotPos[0]++;
+                if (cmd === 'LEFT') robotPos[1]--;
+                if (cmd === 'RIGHT') robotPos[1]++;
+
+                // Duvar veya meteor kontrolü
+                const outOfBounds = robotPos[0] < 0 || robotPos[0] > 4 || robotPos[1] < 0 || robotPos[1] > 4;
+                const hitRock = lvl.rocks.some(rock => rock[0] === robotPos[0] && rock[1] === robotPos[1]);
+
+                if (outOfBounds || hitRock) {
+                    playError();
+                    document.getElementById('robot-status').textContent = '💥 Eyvah! Engelle karşılaştık. Tekrar deneyelim!';
+                    await new Promise(res => setTimeout(res, 1000));
+                    robotPos = [...lvl.start];
+                    renderRobotGrid();
+                    isRunning = false;
+                    return;
+                }
+
+                playStep();
+                renderRobotGrid();
+
+                // Yıldıza ulaştı mı?
+                if (robotPos[0] === lvl.star[0] && robotPos[1] === lvl.star[1]) {
+                    playWin();
+                    addStars(3);
+                    document.getElementById('robot-status').textContent = '🎉 HARİKASIN SENCER! +3 Yıldız Kazandın!';
+                    await new Promise(res => setTimeout(res, 1800));
+                    currentRobotLevel = (currentRobotLevel + 1) % robotLevels.length;
+                    initRobotLevel();
+                    return;
+                }
+            }
+
+            playError();
+            document.getElementById('robot-status').textContent = '🤔 Yıldıza biraz daha yol kaldı! Birkaç blok daha ekleyelim.';
+            await new Promise(res => setTimeout(res, 1200));
+            robotPos = [...lvl.start];
+            renderRobotGrid();
+            isRunning = false;
+        }
+
+        // ==========================================
+        // OYUN 2: UZAY ŞİFRESİ (ÖRÜNTÜ)
+        // ==========================================
+        const patterns = [
+            { seq: ['🚀', '🛸', '🚀', '🛸', '🚀'], ans: '🛸', opts: ['🛸', '🌍', '👾'] },
+            { seq: ['⭐', '⭐', '🌙', '⭐', '⭐'], ans: '🌙', opts: ['⭐', '🌙', '☀️'] },
+            { seq: ['🤖', '👾', '☄️', '🤖', '👾'], ans: '☄️', opts: ['🤖', '🚀', '☄️'] },
+            { seq: ['🌍', '🌕', '🌍', '🌕', '🌍'], ans: '🌕', opts: ['🌍', '🌕', '🪐'] },
+            { seq: ['⚡', '🔥', '💧', '⚡', '🔥'], ans: '💧', opts: ['💧', '⚡', '🔥'] }
+        ];
+        let currentPattern = 0;
+
+        function loadPatternGame() {
+            const p = patterns[currentPattern];
+            const display = document.getElementById('pattern-display');
+            display.innerHTML = p.seq.map(item => `<span class="bg-indigo-900 p-3 rounded-xl border border-indigo-600">${item}</span>`).join('') +
+                                `<span class="bg-amber-400 text-indigo-950 font-bold px-4 py-3 rounded-xl animate-pulse">?</span>`;
+            
+            const optsDiv = document.getElementById('pattern-options');
+            optsDiv.innerHTML = p.opts.map(opt => `
+                <button onclick="checkPattern('${opt}')" class="btn-bounce bg-indigo-800 hover:bg-indigo-700 border-b-4 border-indigo-950 text-4xl md:text-5xl py-4 rounded-2xl shadow-lg">
+                    ${opt}
+                </button>
+            `).join('');
+            document.getElementById('pattern-feedback').textContent = '';
+        }
+
+        function checkPattern(selected) {
+            const p = patterns[currentPattern];
+            const fb = document.getElementById('pattern-feedback');
+            if (selected === p.ans) {
+                playWin();
+                addStars(2);
+                fb.className = 'mt-6 text-xl font-bold text-emerald-400';
+                fb.textContent = '🎉 SÜPERSİN SENCER! Şifre Çözüldü! +2 Yıldız';
+                setTimeout(() => {
+                    currentPattern = (currentPattern + 1) % patterns.length;
+                    loadPatternGame();
+                }, 1500);
+            } else {
+                playError();
+                fb.className = 'mt-6 text-xl font-bold text-rose-400';
+                fb.textContent = '❌ Dikkatli bak Sencer, sıradaki şekil bu değil!';
+            }
+        }
+
+        // ==========================================
+        // OYUN 3: HATA (BUG) AVCISI
+        // ==========================================
+        const bugLevels = [
+            {
+                rocket: [0, 0], star: [0, 3],
+                code: ['➡️ Sağa Git', '⬆️ Yukarı Git', '➡️ Sağa Git', '➡️ Sağa Git'],
+                bugIndex: 1
+            },
+            {
+                rocket: [0, 0], star: [2, 1],
+                code: ['⬇️ Aşağı Git', '⬇️ Aşağı Git', '⬅️ Sola Git'],
+                bugIndex: 2
+            },
+            {
+                rocket: [3, 0], star: [1, 2],
+                code: ['⬆️ Yukarı Git', '⬇️ Aşağı Git', '➡️ Sağa Git', '➡️ Sağa Git'],
+                bugIndex: 1
+            }
+        ];
+        let currentBugLevel = 0;
+
+        function loadBugGame() {
+            const lvl = bugLevels[currentBugLevel];
+            const grid = document.getElementById('bug-grid');
+            grid.innerHTML = '';
+
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'w-14 h-14 bg-indigo-900 rounded-xl flex items-center justify-center text-3xl border border-indigo-700';
+                    if (lvl.rocket[0] === r && lvl.rocket[1] === c) cell.textContent = '🚀';
+                    else if (lvl.star[0] === r && lvl.star[1] === c) cell.textContent = '⭐';
+                    grid.appendChild(cell);
+                }
+            }
+
+            const list = document.getElementById('bug-code-list');
+            list.innerHTML = lvl.code.map((step, idx) => `
+                <button onclick="checkBug(${idx})" class="btn-bounce w-full text-left bg-indigo-950 hover:bg-rose-900/60 border-2 border-indigo-500 hover:border-rose-400 px-4 py-3 rounded-xl font-bold text-lg flex items-center gap-3 shadow">
+                    <span class="bg-rose-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm">${idx + 1}</span>
+                    <span>${step}</span>
+                </button>
+            `).join('');
+            document.getElementById('bug-feedback').textContent = '';
+        }
+
+        function checkBug(index) {
+            const lvl = bugLevels[currentBugLevel];
+            const fb = document.getElementById('bug-feedback');
+            if (index === lvl.bugIndex) {
+                playWin();
+                addStars(3);
+                fb.className = 'mt-4 text-lg font-bold text-emerald-400';
+                fb.textContent = '🐛 Hatayı yakaladın Sencer! Harika bir dedektifsin! +3 Yıldız';
+                setTimeout(() => {
+                    currentBugLevel = (currentBugLevel + 1) % bugLevels.length;
+                    loadBugGame();
+                }, 1600);
+            } else {
+                playError();
+                fb.className = 'mt-4 text-lg font-bold text-rose-400';
+                fb.textContent = '🤔 Bu adım doğru görünüyor, diğer adımlara bakalım!';
+            }
+        }
+
+        // Başlangıç Yüklemeleri
+        initRobotLevel();
+        loadPatternGame();
+        loadBugGame();
+    </script>
+</body>
+</html>
