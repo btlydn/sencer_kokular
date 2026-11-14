@@ -305,11 +305,11 @@
                             <canvas id="snake-canvas" width="320" height="320" class="rounded-xl bg-slate-900 block"></canvas>
                             
                             <!-- Başlat / Çarpma Overlay -->
-                            <div id="snake-overlay" class="absolute inset-0 bg-indigo-950/85 rounded-xl flex flex-col items-center justify-center p-4 text-center">
+                            <div id="snake-overlay" class="absolute inset-0 bg-indigo-950/90 rounded-xl flex flex-col items-center justify-center p-4 text-center z-10">
                                 <div class="text-5xl mb-2">🐍🍎</div>
                                 <h3 id="snake-overlay-title" class="text-2xl font-bold text-cyan-300 mb-2">Seviye 1'e Hazır mısın?</h3>
                                 <p id="snake-overlay-desc" class="text-indigo-200 text-sm mb-4">Hedef: 5 Elma topla!</p>
-                                <button onclick="startSnakeLevel()" class="btn-bounce bg-cyan-400 hover:bg-cyan-300 text-indigo-950 font-bold px-6 py-3 rounded-2xl text-xl shadow-lg">
+                                <button type="button" onclick="startSnakeLevel()" class="btn-bounce bg-cyan-400 hover:bg-cyan-300 text-indigo-950 font-bold px-6 py-3 rounded-2xl text-xl shadow-lg cursor-pointer">
                                     ▶️ BAŞLA
                                 </button>
                             </div>
@@ -321,22 +321,22 @@
                         <h3 class="text-lg font-bold text-cyan-200 mb-4">Yön Kontrolleri:</h3>
                         <div class="grid grid-cols-3 gap-3 w-56">
                             <div></div>
-                            <button onclick="setSnakeDir(0, -1)" class="btn-bounce bg-cyan-500 hover:bg-cyan-400 border-b-4 border-cyan-700 text-indigo-950 text-3xl py-4 rounded-2xl shadow-lg font-bold">
+                            <button type="button" onclick="setSnakeDir(0, -1)" class="btn-bounce bg-cyan-500 hover:bg-cyan-400 border-b-4 border-cyan-700 text-indigo-950 text-3xl py-4 rounded-2xl shadow-lg font-bold cursor-pointer">
                                 ⬆️
                             </button>
                             <div></div>
-                            <button onclick="setSnakeDir(-1, 0)" class="btn-bounce bg-cyan-500 hover:bg-cyan-400 border-b-4 border-cyan-700 text-indigo-950 text-3xl py-4 rounded-2xl shadow-lg font-bold">
+                            <button type="button" onclick="setSnakeDir(-1, 0)" class="btn-bounce bg-cyan-500 hover:bg-cyan-400 border-b-4 border-cyan-700 text-indigo-950 text-3xl py-4 rounded-2xl shadow-lg font-bold cursor-pointer">
                                 ⬅️
                             </button>
-                            <button onclick="setSnakeDir(0, 1)" class="btn-bounce bg-cyan-500 hover:bg-cyan-400 border-b-4 border-cyan-700 text-indigo-950 text-3xl py-4 rounded-2xl shadow-lg font-bold">
+                            <button type="button" onclick="setSnakeDir(0, 1)" class="btn-bounce bg-cyan-500 hover:bg-cyan-400 border-b-4 border-cyan-700 text-indigo-950 text-3xl py-4 rounded-2xl shadow-lg font-bold cursor-pointer">
                                 ⬇️
                             </button>
-                            <button onclick="setSnakeDir(1, 0)" class="btn-bounce bg-cyan-500 hover:bg-cyan-400 border-b-4 border-cyan-700 text-indigo-950 text-3xl py-4 rounded-2xl shadow-lg font-bold">
+                            <button type="button" onclick="setSnakeDir(1, 0)" class="btn-bounce bg-cyan-500 hover:bg-cyan-400 border-b-4 border-cyan-700 text-indigo-950 text-3xl py-4 rounded-2xl shadow-lg font-bold cursor-pointer">
                                 ➡️
                             </button>
                         </div>
                         <p class="text-indigo-300 text-sm mt-5 text-center">
-                            💡 İpucu: Duvarlara veya kendi kuyruğuna çarpmadan elmaları ye!
+                            💡 İpucu: Klavyedeki ok tuşlarını veya yukarıdaki butonları kullanabilirsin!
                         </p>
                     </div>
                 </div>
@@ -800,11 +800,11 @@
         }
 
         // ==========================================
-        // OYUN 4: KOD YILANI (3 SEVİYE - KADEMELİ HIZ & HEDEF)
+        // OYUN 4: KOD YILANI (DÜZELTİLMİŞ KONTROLLER)
         // ==========================================
         const snakeLevels = [
-            { target: 5, speed: 220 },
-            { target: 8, speed: 185 },
+            { target: 5, speed: 230 },
+            { target: 8, speed: 190 },
             { target: 12, speed: 155 }
         ];
         let currentSnakeLevel = 0;
@@ -822,6 +822,7 @@
         const tileSize = 20;
 
         function prepareSnakeOverlay() {
+            stopSnakeLoop();
             document.getElementById('snake-play-area').classList.remove('hidden');
             document.getElementById('snake-win-screen').classList.add('hidden');
             const lvl = snakeLevels[currentSnakeLevel];
@@ -837,7 +838,6 @@
         function drawInitialSnakeBoard() {
             ctx.fillStyle = '#0f172a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // Hafif ızgara çizgileri
             ctx.strokeStyle = '#1e293b';
             for (let i = 0; i <= tileCount; i++) {
                 ctx.beginPath();
@@ -853,6 +853,8 @@
 
         function startSnakeLevel() {
             playClick();
+            stopSnakeLoop(); // Önce varsa eski döngüyü temizle
+
             const lvl = snakeLevels[currentSnakeLevel];
             snake = [
                 { x: 5, y: 8 },
@@ -865,9 +867,11 @@
             document.getElementById('snake-score').textContent = 0;
             document.getElementById('snake-target').textContent = lvl.target;
             document.getElementById('snake-overlay').classList.add('hidden');
+            
             spawnApple();
-            snakeRunning = true;
-            stopSnakeLoop();
+            drawSnake();
+            
+            snakeRunning = true; // Şimdi aktif et!
             snakeTimer = setInterval(updateSnake, lvl.speed);
         }
 
@@ -880,7 +884,6 @@
         }
 
         function restartSnakeGame() {
-            stopSnakeLoop();
             currentSnakeLevel = 0;
             prepareSnakeOverlay();
         }
@@ -904,20 +907,22 @@
             nextSnakeDir = { x: dx, y: dy };
         }
 
-        // Klavye ok tuşları desteği
+        // Klavye ok tuşları ve WASD desteği
         window.addEventListener('keydown', (e) => {
             if (document.getElementById('game-snake').classList.contains('hidden')) return;
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            const key = e.key;
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'W', 'a', 'A', 's', 'S', 'd', 'D'].includes(key)) {
                 e.preventDefault();
-                if (e.key === 'ArrowUp') setSnakeDir(0, -1);
-                if (e.key === 'ArrowDown') setSnakeDir(0, 1);
-                if (e.key === 'ArrowLeft') setSnakeDir(-1, 0);
-                if (e.key === 'ArrowRight') setSnakeDir(1, 0);
+                if (key === 'ArrowUp' || key === 'w' || key === 'W') setSnakeDir(0, -1);
+                if (key === 'ArrowDown' || key === 's' || key === 'S') setSnakeDir(0, 1);
+                if (key === 'ArrowLeft' || key === 'a' || key === 'A') setSnakeDir(-1, 0);
+                if (key === 'ArrowRight' || key === 'd' || key === 'D') setSnakeDir(1, 0);
             }
         });
 
         function updateSnake() {
-            snakeDir = { ...nextSnakeDir };
+            if (!snakeRunning) return;
+            snakeDir = { x: nextSnakeDir.x, y: nextSnakeDir.y };
             const head = { x: snake[0].x + snakeDir.x, y: snake[0].y + snakeDir.y };
 
             // Duvar veya kendine çarpma kontrolü
@@ -947,7 +952,6 @@
                     playWin();
                     addStars(4);
                     if (currentSnakeLevel + 1 >= snakeLevels.length) {
-                        // YILAN OYUNU TAMAMLANDI!
                         earnBadge('snake');
                         document.getElementById('snake-play-area').classList.add('hidden');
                         document.getElementById('snake-win-screen').classList.remove('hidden');
@@ -979,9 +983,7 @@
             // Yılanı çiz
             snake.forEach((seg, index) => {
                 ctx.fillStyle = index === 0 ? '#22d3ee' : '#06b6d4';
-                ctx.beginPath();
-                ctx.roundRect(seg.x * tileSize + 1, seg.y * tileSize + 1, tileSize - 2, tileSize - 2, 6);
-                ctx.fill();
+                ctx.fillRect(seg.x * tileSize + 2, seg.y * tileSize + 2, tileSize - 4, tileSize - 4);
 
                 // Yılanın gözleri
                 if (index === 0) {
